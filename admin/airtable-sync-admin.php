@@ -1,88 +1,65 @@
 <?php
 /**
- * Administración del plugin Airtable Sync
+ * Shortcode para mostrar conciertos sincronizados
  */
 
-// Agregar la página de administración del plugin
-add_action('admin_menu', 'at_sync_add_admin_menu');
-function at_sync_add_admin_menu() {
-    add_menu_page(
-        'Airtable Sync',
-        'Airtable Sync',
-        'manage_options',
-        'airtable_sync',
-        'at_sync_admin_page',
-        'dashicons-update',
-        20
-    );
-}
-
-// Página de configuración del plugin
-function at_sync_admin_page() {
-    // Verificar permisos de usuario
-    if (!current_user_can('manage_options')) {
-        return;
+// Registrar el shortcode
+add_shortcode('at_sync_conciertos', 'at_sync_display_conciertos');
+function at_sync_display_conciertos($atts) {
+    // Obtener los grupos musicales desde la vista de la Tabla 2
+    $grupos = get_option('at_sync_grupos', array());
+    
+    // Si no hay grupos, mostrar un mensaje
+    if (empty($grupos)) {
+        return '<p>No hay grupos disponibles para mostrar.</p>';
     }
 
-    // Guardar la API Key y otros parámetros si se ha enviado el formulario
-    if (isset($_POST['at_sync_api_key'])) {
-        check_admin_referer('at_sync_save_api_settings');
-        at_sync_save_api_settings(
-            $_POST['at_sync_api_key'],
-            $_POST['at_sync_app_id'],
-            $_POST['at_sync_tabla1_id'],
-            $_POST['at_sync_vista1_id']
-        );
-        echo '<div class="updated"><p>Configuración guardada correctamente.</p></div>';
+    // Procesar los atributos del shortcode
+    $atts = shortcode_atts(array(
+        'grupo' => ''
+    ), $atts);
+
+    // Obtener los conciertos sincronizados desde la vista de la Tabla 1
+    $conciertos = get_option('at_sync_conciertos', array());
+
+    // Filtrar los conciertos por grupo si se especifica
+    if (!empty($atts['grupo'])) {
+        $conciertos = array_filter($conciertos, function ($concierto) use ($atts) {
+            return isset($concierto['fields']['Grup o Espectacle']) &&
+                   strtolower($concierto['fields']['Grup o Espectacle']) === strtolower($atts['grupo']);
+        });
     }
 
-    // Obtener la configuración actual
-    $api_key = get_option('at_sync_api_key', '');
-    $app_id = get_option('at_sync_app_id', '');
-    $tabla1_id = get_option('at_sync_tabla1_id', '');
-    $vista1_id = get_option('at_sync_vista1_id', '');
-    $last_sync_time = get_option('at_sync_last_sync_time', 'Nunca');
+    // Si no hay conciertos, mostrar un mensaje
+    if (empty($conciertos)) {
+        return '<p>No hay conciertos disponibles para este grupo.</p>';
+    }
+
+    // Generar la salida HTML para los conciertos
+    ob_start();
     ?>
-    <div class="wrap">
-        <h1>Airtable Sync Configuración</h1>
-        <form method="post" action="">
-            <?php wp_nonce_field('at_sync_save_api_settings'); ?>
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row">API Key de Airtable:</th>
-                    <td><input type="text" name="at_sync_api_key" value="<?php echo esc_attr($api_key); ?>" size="50" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">App ID de Airtable:</th>
-                    <td><input type="text" name="at_sync_app_id" value="<?php echo esc_attr($app_id); ?>" size="50" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Tabla ID:</th>
-                    <td><input type="text" name="at_sync_tabla1_id" value="<?php echo esc_attr($tabla1_id); ?>" size="50" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Vista ID:</th>
-                    <td><input type="text" name="at_sync_vista1_id" value="<?php echo esc_attr($vista1_id); ?>" size="50" /></td>
-                </tr>
-            </table>
-            <?php submit_button('Guardar Configuración'); ?>
-        </form>
-        <h2>Sincronización Manual</h2>
-        <p>Última sincronización: <strong><?php echo esc_html($last_sync_time); ?></strong></p>
-        <form method="post" action="">
-            <?php wp_nonce_field('at_sync_manual_sync'); ?>
-            <input type="hidden" name="at_sync_manual_sync" value="1" />
-            <?php submit_button('Sincronizar Ahora'); ?>
-        </form>
-        <?php
-        // Ejecutar sincronización manual si se ha enviado el formulario
-        if (isset($_POST['at_sync_manual_sync'])) {
-            check_admin_referer('at_sync_manual_sync');
-            at_sync_airtable_data();
-            echo '<div class="updated"><p>Sincronización realizada correctamente.</p></div>';
-        }
-        ?>
+    <div class="at-sync-conciertos">
+        <?php foreach ($conciertos as $concierto) : ?>
+            <div class="at-sync-concierto">
+                <h3><?php echo esc_html($concierto['fields']['Grup o Espectacle']); ?></h3>
+                <p><strong>Fecha:</strong> <?php echo esc_html($concierto['fields']['Data__']); ?></p>
+                <p><strong>Población:</strong> <?php echo esc_html($concierto['fields']['Població']); ?></p>
+                <p><strong>Horario:</strong> <?php echo esc_html($concierto['fields']['Horari']); ?></p>
+            </div>
+        <?php endforeach; ?>
     </div>
     <?php
+    return ob_get_clean();
+}
+
+// Actualizar los grupos musicales al sincronizar datos
+function at_sync_update_grupos($tabla2_data) {
+    $grupos = array();
+    foreach ($tabla2_data as $record) {
+        if (isset($record['fields']['Grup o Espectacle'])) {
+            $grupos[] = $record['fields']['Grup o Espectacle'];
+        }
+    }
+    update_option('at_sync_grupos', $grupos);
 }
 ?>

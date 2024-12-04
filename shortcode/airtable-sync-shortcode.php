@@ -51,15 +51,3 @@ function at_sync_display_conciertos($atts) {
     <?php
     return ob_get_clean();
 }
-
-// Actualizar los grupos musicales al sincronizar datos
-function at_sync_update_grupos($tabla2_data) {
-    $grupos = array();
-    foreach ($tabla2_data as $record) {
-        if (isset($record['fields']['Grup o Espectacle'])) {
-            $grupos[] = $record['fields']['Grup o Espectacle'];
-        }
-    }
-    update_option('at_sync_grupos', $grupos);
-}
-?>

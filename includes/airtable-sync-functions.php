@@ -69,6 +69,7 @@ function at_sync_extract_ids_from_url($url) {
 
 // Hacer petición de datos a Airtable
 function at_sync_fetch_data($api_key, $ids) {
+    // Construir la URL de la API de Airtable
     $url = "https://api.airtable.com/v0/{$ids['app_id']}/{$ids['table_id']}?view={$ids['view_id']}";
     $response = wp_remote_get($url, array(
         'headers' => array(

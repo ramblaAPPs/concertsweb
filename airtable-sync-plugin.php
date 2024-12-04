@@ -55,4 +55,3 @@ function at_sync_airtable_data() {
         error_log('La función de sincronización no está definida correctamente. Verifique la inclusión del archivo de funciones.');
     }
 }
-?>

@@ -3,7 +3,7 @@
 Plugin Name: Airtable Sync Plugin
 Plugin URI: https://example.com/airtable-sync-plugin
 Description: Un plugin para sincronizar datos de Airtable y mostrar conciertos mediante shortcodes.
-Version: 1.3
+Version: 1.4
 Author: Tu Nombre
 Author URI: https://example.com
 License: GPL2
@@ -48,7 +48,11 @@ add_action('at_sync_cron_job', 'at_sync_airtable_data');
 
 // Definir la función de sincronización para evitar errores fatales
 function at_sync_airtable_data() {
-    // Placeholder para la función de sincronización de Airtable
-    error_log('Función de sincronización de Airtable llamada correctamente.');
+    if (function_exists('at_sync_fetch_airtable_data')) {
+        // Llamar a la función de sincronización real
+        at_sync_fetch_airtable_data();
+    } else {
+        error_log('La función de sincronización no está definida correctamente. Verifique la inclusión del archivo de funciones.');
+    }
 }
 ?>

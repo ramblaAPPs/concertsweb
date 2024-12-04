@@ -1,10 +1,13 @@
 <?php
-/**
- * Plugin Name: Airtable Sync Plugin
- * Description: Un plugin para sincronizar datos de Airtable y mostrar conciertos mediante shortcodes.
- * Version: 1.2
- * Author: Tu Nombre
- */
+/*
+Plugin Name: Airtable Sync Plugin
+Plugin URI: https://example.com/airtable-sync-plugin
+Description: Un plugin para sincronizar datos de Airtable y mostrar conciertos mediante shortcodes.
+Version: 1.3
+Author: Tu Nombre
+Author URI: https://example.com
+License: GPL2
+*/
 
 // Definir constantes del plugin
 if (!defined('AT_SYNC_PLUGIN_DIR')) {
@@ -42,4 +45,10 @@ function at_sync_add_cron_interval($schedules) {
 
 // Acción de sincronización automática
 add_action('at_sync_cron_job', 'at_sync_airtable_data');
+
+// Definir la función de sincronización para evitar errores fatales
+function at_sync_airtable_data() {
+    // Placeholder para la función de sincronización de Airtable
+    error_log('Función de sincronización de Airtable llamada correctamente.');
+}
 ?>

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Concertweb - Airtable Sync Plugin
+ * Plugin Name: Airtable Sync Plugin
  * Description: Un plugin para sincronizar datos de Airtable y mostrar conciertos mediante shortcodes.
- * Version: 1.0
- * Author: Gonzalo Rambla
+ * Version: 1.1
+ * Author: Tu Nombre
  */
 
 // Definir constantes del plugin
@@ -42,4 +42,3 @@ function at_sync_add_cron_interval($schedules) {
 
 // Acción de sincronización automática
 add_action('at_sync_cron_job', 'at_sync_airtable_data');
-?>

@@ -4,7 +4,7 @@
  */
 
 // Sincronizar datos de Airtable
-function at_sync_airtable_data() {
+function at_sync_fetch_airtable_data() {
     // Obtener la API Key y URLs de las vistas desde la configuración del plugin
     $api_key = get_option('at_sync_api_key');
     $tabla1_url = get_option('at_sync_tabla1_url');
@@ -15,7 +15,7 @@ function at_sync_airtable_data() {
         return;
     }
 
-    // Extraer app_id, table_id y view_id desde la URL de la vista de la Tabla 1
+    // Extraer IDs de la base de datos, tabla y vista de la URL de la vista de la Tabla 1
     $tabla1_data = at_sync_extract_ids_from_url($tabla1_url);
     if (!$tabla1_data) {
         error_log('No se pudo extraer información de la URL de la vista de la Tabla 1.');
@@ -23,7 +23,7 @@ function at_sync_airtable_data() {
     }
 
     // Realizar la petición a Airtable para la Tabla 1
-    $response1 = at_sync_fetch_airtable_data($api_key, $tabla1_data);
+    $response1 = at_sync_fetch_data($api_key, $tabla1_data);
     if (!$response1) {
         error_log('Error al conectar con Airtable Tabla 1.');
         return;
@@ -32,7 +32,7 @@ function at_sync_airtable_data() {
     // Guardar los datos de la Tabla 1 en la base de datos de WordPress
     update_option('at_sync_conciertos', $response1);
 
-    // Extraer app_id, table_id y view_id desde la URL de la vista de la Tabla 2
+    // Extraer IDs de la base de datos, tabla y vista de la URL de la vista de la Tabla 2
     $tabla2_data = at_sync_extract_ids_from_url($tabla2_url);
     if (!$tabla2_data) {
         error_log('No se pudo extraer información de la URL de la vista de la Tabla 2.');
@@ -40,7 +40,7 @@ function at_sync_airtable_data() {
     }
 
     // Realizar la petición a Airtable para la Tabla 2
-    $response2 = at_sync_fetch_airtable_data($api_key, $tabla2_data);
+    $response2 = at_sync_fetch_data($api_key, $tabla2_data);
     if (!$response2) {
         error_log('Error al conectar con Airtable Tabla 2.');
         return;
@@ -68,7 +68,7 @@ function at_sync_extract_ids_from_url($url) {
 }
 
 // Hacer petición de datos a Airtable
-function at_sync_fetch_airtable_data($api_key, $ids) {
+function at_sync_fetch_data($api_key, $ids) {
     $url = "https://api.airtable.com/v0/{$ids['app_id']}/{$ids['table_id']}?view={$ids['view_id']}";
     $response = wp_remote_get($url, array(
         'headers' => array(
@@ -94,4 +94,3 @@ function at_sync_update_grupos($tabla2_data) {
     }
     update_option('at_sync_grupos', $grupos);
 }
-?>

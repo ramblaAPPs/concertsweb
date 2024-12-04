@@ -24,28 +24,48 @@ function at_sync_admin_page() {
         return;
     }
 
-    // Guardar la API Key si se ha enviado el formulario
+    // Guardar la API Key y otros parámetros si se ha enviado el formulario
     if (isset($_POST['at_sync_api_key'])) {
-        check_admin_referer('at_sync_save_api_key');
-        at_sync_save_api_key($_POST['at_sync_api_key']);
-        echo '<div class="updated"><p>API Key guardada correctamente.</p></div>';
+        check_admin_referer('at_sync_save_api_settings');
+        at_sync_save_api_settings(
+            $_POST['at_sync_api_key'],
+            $_POST['at_sync_app_id'],
+            $_POST['at_sync_tabla1_id'],
+            $_POST['at_sync_vista1_id']
+        );
+        echo '<div class="updated"><p>Configuración guardada correctamente.</p></div>';
     }
 
-    // Obtener la API Key actual y la hora de la última sincronización
+    // Obtener la configuración actual
     $api_key = get_option('at_sync_api_key', '');
+    $app_id = get_option('at_sync_app_id', '');
+    $tabla1_id = get_option('at_sync_tabla1_id', '');
+    $vista1_id = get_option('at_sync_vista1_id', '');
     $last_sync_time = get_option('at_sync_last_sync_time', 'Nunca');
     ?>
     <div class="wrap">
         <h1>Airtable Sync Configuración</h1>
         <form method="post" action="">
-            <?php wp_nonce_field('at_sync_save_api_key'); ?>
+            <?php wp_nonce_field('at_sync_save_api_settings'); ?>
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row">API Key de Airtable:</th>
                     <td><input type="text" name="at_sync_api_key" value="<?php echo esc_attr($api_key); ?>" size="50" /></td>
                 </tr>
+                <tr valign="top">
+                    <th scope="row">App ID de Airtable:</th>
+                    <td><input type="text" name="at_sync_app_id" value="<?php echo esc_attr($app_id); ?>" size="50" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Tabla ID:</th>
+                    <td><input type="text" name="at_sync_tabla1_id" value="<?php echo esc_attr($tabla1_id); ?>" size="50" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Vista ID:</th>
+                    <td><input type="text" name="at_sync_vista1_id" value="<?php echo esc_attr($vista1_id); ?>" size="50" /></td>
+                </tr>
             </table>
-            <?php submit_button('Guardar API Key'); ?>
+            <?php submit_button('Guardar Configuración'); ?>
         </form>
         <h2>Sincronización Manual</h2>
         <p>Última sincronización: <strong><?php echo esc_html($last_sync_time); ?></strong></p>
@@ -66,4 +86,3 @@ function at_sync_admin_page() {
     <?php
 }
 ?>
-
